@@ -53,6 +53,18 @@ abstract class Wrapper extends StatefulWidget {
     }
     return false;
   }
+
+  double _measure(ScrollNotification notification) {
+    if (widget.up) {
+      return (notification.metrics.minScrollExtent -
+              notification.metrics.pixels) /
+          widget.triggerDistance;
+    } else {
+      return (notification.metrics.pixels -
+              notification.metrics.maxScrollExtent) /
+          widget.triggerDistance;
+    }
+  }
 }
 
 //idle,refreshing,completed,failed,canRefresh
@@ -109,18 +121,6 @@ class RefreshWrapperState extends State<RefreshWrapper>
 
   int get mode => widget.modeListener.value;
 
-  double _measure(ScrollNotification notification) {
-    if (widget.up) {
-      return (notification.metrics.minScrollExtent -
-              notification.metrics.pixels) /
-          widget.triggerDistance;
-    } else {
-      return (notification.metrics.pixels -
-              notification.metrics.maxScrollExtent) /
-          widget.triggerDistance;
-    }
-  }
-
   @override
   void onDragStart(ScrollStartNotification notification) {
     // TODO: implement onDragStart
@@ -134,7 +134,7 @@ class RefreshWrapperState extends State<RefreshWrapper>
     }
     if (widget._isComplete || widget._isRefreshing) return;
 
-    double offset = _measure(notification);
+    double offset = widget._measure(notification);
     if (offset >= 1.0) {
       widget.mode = RefreshStatus.canRefresh;
     } else {
@@ -149,7 +149,7 @@ class RefreshWrapperState extends State<RefreshWrapper>
       return;
     }
     if (widget._isComplete || widget._isRefreshing) return;
-    bool reachMax = _measure(notification) >= 1.0;
+    bool reachMax = widget._measure(notification) >= 1.0;
     if (!reachMax) {
       _sizeController.animateTo(0.0);
       return;
@@ -264,18 +264,6 @@ class LoadWrapper extends Wrapper {
 class LoadWrapperState extends State<LoadWrapper> implements GestureProcessor {
   Function _updateListener;
 
-  double _measure(ScrollNotification notification) {
-    if (widget.up) {
-      return (notification.metrics.minScrollExtent -
-              notification.metrics.pixels) /
-          widget.triggerDistance;
-    } else {
-      return (notification.metrics.pixels -
-              notification.metrics.maxScrollExtent) /
-          widget.triggerDistance;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -322,7 +310,7 @@ class LoadWrapperState extends State<LoadWrapper> implements GestureProcessor {
 
     if (widget._isComplete || widget._isRefreshing) return;
 
-    double offset = _measure(notification);
+    double offset = widget._measure(notification);
     if (offset >= 1.0) {
       widget.mode = RefreshStatus.canRefresh;
     } else {
@@ -344,7 +332,7 @@ class LoadWrapperState extends State<LoadWrapper> implements GestureProcessor {
     // }
 
     if (widget._isComplete || widget._isRefreshing) return;
-    bool reachMax = _measure(notification) >= 1.0;
+    bool reachMax = widget._measure(notification) >= 1.0;
     if (!reachMax) {
       widget.mode = RefreshStatus.idle;
     } else {
