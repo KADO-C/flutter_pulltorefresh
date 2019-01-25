@@ -55,14 +55,14 @@ abstract class Wrapper extends StatefulWidget {
   }
 
   double _measure(ScrollNotification notification) {
-    if (widget.up) {
+    if (up) {
       return (notification.metrics.minScrollExtent -
               notification.metrics.pixels) /
-          widget.triggerDistance;
+          triggerDistance;
     } else {
       return (notification.metrics.pixels -
               notification.metrics.maxScrollExtent) /
-          widget.triggerDistance;
+          triggerDistance;
     }
   }
 }
