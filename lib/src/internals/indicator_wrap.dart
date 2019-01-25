@@ -254,6 +254,16 @@ class LoadWrapper extends Wrapper {
           triggerDistance: triggerDistance,
         );
 
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return new LoadWrapperState();
+  }
+}
+
+class LoadWrapperState extends State<LoadWrapper> implements GestureProcessor {
+  Function _updateListener;
+
   double _measure(ScrollNotification notification) {
     if (widget.up) {
       return (notification.metrics.minScrollExtent -
@@ -265,16 +275,6 @@ class LoadWrapper extends Wrapper {
           widget.triggerDistance;
     }
   }
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return new LoadWrapperState();
-  }
-}
-
-class LoadWrapperState extends State<LoadWrapper> implements GestureProcessor {
-  Function _updateListener;
 
   @override
   Widget build(BuildContext context) {
