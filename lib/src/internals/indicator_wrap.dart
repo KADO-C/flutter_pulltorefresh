@@ -254,6 +254,18 @@ class LoadWrapper extends Wrapper {
           triggerDistance: triggerDistance,
         );
 
+  double _measure(ScrollNotification notification) {
+    if (widget.up) {
+      return (notification.metrics.minScrollExtent -
+              notification.metrics.pixels) /
+          widget.triggerDistance;
+    } else {
+      return (notification.metrics.pixels -
+              notification.metrics.maxScrollExtent) /
+          widget.triggerDistance;
+    }
+  }
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -295,31 +307,48 @@ class LoadWrapperState extends State<LoadWrapper> implements GestureProcessor {
   @override
   void onDragMove(ScrollUpdateNotification notification) {
     // TODO: implement onDragMove
-//    if (!widget._isScrollToOutSide(notification)) {
-//      return;
-//    }
-    if (widget._isRefreshing || widget._isComplete) return;
-    if (widget.autoLoad) {
-      if (widget.up &&
-          notification.metrics.extentBefore <= widget.triggerDistance)
-        widget.mode = RefreshStatus.refreshing;
-      if (!widget.up &&
-          notification.metrics.extentAfter <= widget.triggerDistance)
-        widget.mode = RefreshStatus.refreshing;
+    // if (!widget._isScrollToOutSide(notification)) {
+    //   return;
+    // }
+    // if (widget._isRefreshing || widget._isComplete) return;
+    // if (widget.autoLoad) {
+    //   if (widget.up &&
+    //       notification.metrics.extentBefore <= widget.triggerDistance)
+    //     widget.mode = RefreshStatus.refreshing;
+    //   if (!widget.up &&
+    //       notification.metrics.extentAfter <= widget.triggerDistance)
+    //     widget.mode = RefreshStatus.refreshing;
+    // }
+
+    if (widget._isComplete || widget._isRefreshing) return;
+
+    double offset = _measure(notification);
+    if (offset >= 1.0) {
+      widget.mode = RefreshStatus.canRefresh;
+    } else {
+      widget.mode = RefreshStatus.idle;
     }
   }
 
   @override
   void onDragEnd(ScrollNotification notification) {
     // TODO: implement onDragEnd
-    if (widget._isRefreshing || widget._isComplete) return;
-    if (widget.autoLoad) {
-      if (widget.up &&
-          notification.metrics.extentBefore <= widget.triggerDistance)
-        widget.mode = RefreshStatus.refreshing;
-      if (!widget.up &&
-          notification.metrics.extentAfter <= widget.triggerDistance)
-        widget.mode = RefreshStatus.refreshing;
+    // if (widget._isRefreshing || widget._isComplete) return;
+    // if (widget.autoLoad) {
+    //   if (widget.up &&
+    //       notification.metrics.extentBefore <= widget.triggerDistance)
+    //     widget.mode = RefreshStatus.refreshing;
+    //   if (!widget.up &&
+    //       notification.metrics.extentAfter <= widget.triggerDistance)
+    //     widget.mode = RefreshStatus.refreshing;
+    // }
+
+    if (widget._isComplete || widget._isRefreshing) return;
+    bool reachMax = _measure(notification) >= 1.0;
+    if (!reachMax) {
+      widget.mode = RefreshStatus.idle;
+    } else {
+      widget.mode = RefreshStatus.refreshing;
     }
   }
 }
